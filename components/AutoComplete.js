@@ -1,23 +1,22 @@
-import React, { useState, Component } from 'react';
+import React, {Component} from 'react';
 import {
     View,
     Text,
     TouchableOpacity,
-    Keyboard,
+    TextInput,
     StyleSheet,
 } from 'react-native';
-import TextInput from '../components/UI/Input';
-import {assets} from '../assets';
-import axios from '../axios';
+import axios from 'axios';
 import _ from 'lodash';
-import config from '../config';
+
+const GOOGLE_API_KEY = 'AIzaSyDMF4RS2wqullT4e3zq-HQvyVpjNGeD10c';
 
 class AutoComplete extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            address: null,
             suggestions: [],
+            address: null,
             placeholder: this.props.placeholder,
         },
         this.getLocationDebounce = _.debounce(this.getLocation, 1000);
@@ -29,10 +28,10 @@ class AutoComplete extends Component {
                 const response = await axios.get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
                     params: {
                         input: this.state.address,
-                        key: config.GOOGLE_API_KEY,
+                        key: GOOGLE_API_KEY,
                     }  
                 });
-    
+
                 if (response.data.status == 'OK') {
                     this.setState({suggestions: response.data.predictions});
                 }
@@ -49,7 +48,7 @@ class AutoComplete extends Component {
                 params: {
                     place_id: id,
                     libraries: 'places',
-                    key: config.GOOGLE_API_KEY,
+                    key: GOOGLE_API_KEY,
                 }  
             });
             
@@ -60,29 +59,10 @@ class AutoComplete extends Component {
                 });
 
                 //send location details
-                this.props.onPress(response.data.result);
+                if(this.props.onPress) {
+                    this.props.onPress(response.data.result);
+                }
             }
-        } catch (error) {
-            throw new Error(error);
-        }
-    };
-
-    getLocationDetailsbyGeo = async () => {
-        try {
-            const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
-                params: {
-                    latlng: `${this.state.location.lat},${this.state.location.lng}`,
-                    key: config.GOOGLE_API_KEY,
-                    result_type: 'street_address'
-                }  
-            });
-            
-            if (response.data.status == 'OK') {
-                this.setState({
-                    address: response.data.results?.[0]?.formatted_address
-                });
-            }
-            
         } catch (error) {
             throw new Error(error);
         }
@@ -97,18 +77,11 @@ class AutoComplete extends Component {
         });
     };
 
-    componentDidMount = () => {
-        // this.setState({
-        //     address: this.props.address,
-        //     placeholder: this.props.placeholder,
-        //     editable: this.props.editable
-        // });
-    };
-
     render() {
         const suggestions = this.state.suggestions.map(suggestion => (
-            <TouchableOpacity key={suggestion.id} 
-                onPress={() => Keyboard.dismiss(this.getLocationDetailsbyId(suggestion.place_id))} 
+            <TouchableOpacity 
+                key={suggestion.id} 
+                onPress={() => this.getLocationDetailsbyId(suggestion.place_id)} 
                 style={styles.suggestion}>
                 <Text>{suggestion.description}</Text>
             </TouchableOpacity>
@@ -116,11 +89,11 @@ class AutoComplete extends Component {
 
         return(
             <View style={styles.mainContainer}>
-                <TextInput placeholder={this.state.placeholder} 
+                <TextInput 
+                    placeholder={this.state.placeholder} 
                     onChangeText={text => this.inputHandler(text)} 
                     value={this.state.address} 
-                    style={{...this.props.style, height: 40}}
-                    editable={this.state.editable}
+                    style={styles.input}
                 />
                 {
                     suggestions ? 
@@ -136,22 +109,29 @@ class AutoComplete extends Component {
 
 const styles = StyleSheet.create({
     mainContainer: {
-        width: '100%'
+        width: '100%',
     },
 
     suggestionContainer: {
         width: '100%',
-        backgroundColor: assets.style.colors.white,
+        backgroundColor: 'white',
         position: 'absolute',
         zIndex: 9999,
-        top: 40
+        top: 40,
     },
 
     suggestion: {
         borderBottomWidth: 1,
-        borderBottomColor: assets.style.colors.gray_6,
+        borderBottomColor: 'lightgrey',
         paddingVertical: 8,
-        paddingHorizontal: 5
+        paddingHorizontal: 5,
+    },
+
+    input: {
+        height: 40,
+        borderWidth: 1,
+        padding: 4, 
+        borderColor: 'lightgrey',
     }
 });
 
