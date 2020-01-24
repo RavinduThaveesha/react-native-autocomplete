@@ -9,7 +9,7 @@ import {
 import axios from 'axios';
 import _ from 'lodash';
 
-const GOOGLE_API_KEY = 'AIzaSyDMF4RS2wqullT4e3zq-HQvyVpjNGeD10c';
+const GOOGLE_API_KEY = 'ADD YOUR API KEY';
 
 class AutoComplete extends Component {
     constructor(props) {
@@ -24,6 +24,10 @@ class AutoComplete extends Component {
 
     getLocation = async () => {
         try {
+            this.setState({
+                suggestion: []
+            });
+            
             if (this.state.address) {
                 const response = await axios.get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
                     params: {
@@ -33,7 +37,9 @@ class AutoComplete extends Component {
                 });
 
                 if (response.data.status == 'OK') {
-                    this.setState({suggestions: response.data.predictions});
+                    this.setState({
+                        suggestions: response.data.predictions
+                    });
                 }
             }
             
@@ -51,7 +57,7 @@ class AutoComplete extends Component {
                     key: GOOGLE_API_KEY,
                 }  
             });
-            
+
             if (response.data.status == 'OK') {
                 this.setState({
                     address: response.data.result.formatted_address,
@@ -59,7 +65,7 @@ class AutoComplete extends Component {
                 });
 
                 //send location details
-                if(this.props.onPress) {
+                if (this.props.onPress) {
                     this.props.onPress(response.data.result);
                 }
             }
@@ -71,10 +77,7 @@ class AutoComplete extends Component {
     inputHandler = (text) => {
         this.setState({
             address: text,
-            location: {},
-        },() => {
-            this.getLocationDebounce()
-        });
+        }, this.getLocationDebounce);
     };
 
     render() {
