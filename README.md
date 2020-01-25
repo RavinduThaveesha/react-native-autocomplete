@@ -2,7 +2,7 @@
 React native implemetation of Google places autocomplete 
 
 ## example
-
+![Image of Example](https://user-images.githubusercontent.com/5220867/73115035-b8030180-3f5b-11ea-85a6-e584b24ce1f7.gif)
 
 ## how to use
 
