@@ -24,3 +24,7 @@ import AutoComplete from './components/AutoComplete';
 | onPress      | Trigger when select address         | refer: https://developers.google.com/places/web-service/details  |
 
 
+## dependencies
+
+- axios
+- lodash
